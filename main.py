@@ -1,6 +1,5 @@
 from datetime import datetime
 import os
-from pprint import pprint
 from urllib.parse import urlparse
 
 import requests
@@ -17,10 +16,10 @@ def fetch_image_spacex_launch(flight_number):
     images_urls = response.json()['links']['flickr_images']
     for image_number, url in enumerate(images_urls, 1):
         file_name = f'spacex_{image_number}.jpg'
-        response = requests.get(url)
-        response.raise_for_status()
+        snapshot = requests.get(url)
+        snapshot.raise_for_status()
         with open(f'{file_path}{file_name}', 'wb') as file:
-            file.write(response.content)
+            file.write(snapshot.content)
 
 
 def get_file_extension(url):
@@ -44,10 +43,10 @@ def fetch_image_nasa(count_image):
     images_urls = [image_url['hdurl'] for image_url in response.json()]
     for image_number, url in enumerate(images_urls, 1):
         file_name = f'nasa_{image_number}{get_file_extension(url)}'
-        response = requests.get(url)
-        response.raise_for_status()
+        snapshot = requests.get(url)
+        snapshot.raise_for_status()
         with open(f'{file_path}{file_name}', 'wb') as file:
-            file.write(response.content)
+            file.write(snapshot.content)
 
 
 def fetch_image_epic():
@@ -55,31 +54,33 @@ def fetch_image_epic():
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    epic_url = 'https://api.nasa.gov/EPIC/api/natural/images'
+    recent_snapshots_url = 'https://api.nasa.gov/EPIC/api/natural/images'
     params = {
         'api_key': 'sFB6SYeX9LtE6EYuY9yj7eq8ikb0QBE8IahIJOaS'
     }
-    response = requests.get(epic_url, params=params)
+    response = requests.get(recent_snapshots_url, params=params)
     response.raise_for_status()
     for image_number, image_url in enumerate(response.json()):
         file_name = f'epic_{image_number}.png'
-        # date = image_url['date'][:10].replace('-', '/')
-        # date = datetime.fromisoformat(image_url['date'])
-        date = datetime.strptime(image_url['date'])
-        print(date)
+        shooting_date = datetime.strptime(
+            image_url['date'],
+            "%Y-%m-%d %H:%M:%S"
+            ).strftime("%Y/%m/%d")
         image = image_url['image']
-        epic_url2 = f'https://api.nasa.gov/EPIC/archive/natural/{date.year}/{date.month}/{date.day}/png/{image}.png'
-        print(epic_url2)
-        response = requests.get(epic_url2, params=params)
-        response.raise_for_status()
+        snapshot_url = (
+            f'https://api.nasa.gov/EPIC/archive/natural/'
+            f'{shooting_date}/png/{image}.png'
+        )
+        snapshot = requests.get(snapshot_url, params=params)
+        snapshot.raise_for_status()
         with open(f'{file_path}{file_name}', 'wb') as file:
-            file.write(response.content)
+            file.write(snapshot.content)
 
 
 def main():
     flight_number = 110
     fetch_image_spacex_launch(flight_number)
-    # fetch_image_nasa(7)
+    fetch_image_nasa(1)
     fetch_image_epic()
 
 
