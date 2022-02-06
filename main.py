@@ -1,8 +1,12 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from urllib.parse import urlparse
 
 import requests
+import telegram
+
+
+TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 
 
 def fetch_image_spacex_launch(flight_number):
@@ -78,14 +82,20 @@ def fetch_image_epic():
 
 
 def main():
-    flight_number = 110
-    fetch_image_spacex_launch(flight_number)
-    fetch_image_nasa(1)
-    fetch_image_epic()
+    # flight_number = 110
+    # fetch_image_spacex_launch(flight_number)
+    # fetch_image_nasa(1)
+    # fetch_image_epic()
+
+    
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    print(bot.get_me())
+    bot.send_message(
+        chat_id='@gudmund198',
+        text="This text sent gudmund_bot"
+    )
+
 
 
 if __name__ == "__main__":
     main()
-
-
-#  https://api.nasa.gov/planetary/apod?api_key=sFB6SYeX9LtE6EYuY9yj7eq8ikb0QBE8IahIJOaS
