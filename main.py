@@ -1,9 +1,10 @@
+import logging
 import os
 from datetime import datetime
 from urllib.parse import urlparse
 
 import requests
-import telegram
+from telegram.ext import Updater
 
 
 TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
@@ -87,14 +88,12 @@ def main():
     # fetch_image_nasa(1)
     # fetch_image_epic()
 
-    
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    print(bot.get_me())
-    bot.send_message(
-        chat_id='@gudmund198',
-        text="This text sent gudmund_bot"
-    )
-
+    updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
+    dispatcher = updater.dispatcher
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
+    dispatcher.bot.send_photo(chat_id='@gudmund198', photo=open('images/NASA/nasa_6.jpg', 'rb'))
+    updater.start_polling()
 
 
 if __name__ == "__main__":
