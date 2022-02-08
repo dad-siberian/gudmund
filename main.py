@@ -1,6 +1,6 @@
-import logging
 import os
 from datetime import datetime
+import time
 from urllib.parse import urlparse
 
 import requests
@@ -11,7 +11,7 @@ TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
 
 
 def fetch_image_spacex_launch(flight_number):
-    file_path = f'images/spacex/{flight_number}/'
+    file_path = 'images/spacex/'
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -83,18 +83,22 @@ def fetch_image_epic():
 
 
 def main():
-    # flight_number = 110
+    # flight_number = 97
     # fetch_image_spacex_launch(flight_number)
-    # fetch_image_nasa(1)
+    # fetch_image_nasa(10)
     # fetch_image_epic()
-
     updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
     dispatcher = updater.dispatcher
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
-    dispatcher.bot.send_photo(chat_id='@gudmund198', photo=open('images/NASA/nasa_6.jpg', 'rb'))
+    for root, dirs, files in os.walk("images"):
+        for filename in files:
+            photo = os.path.join(root, filename)
+            dispatcher.bot.send_photo(
+                chat_id='@gudmund198',
+                photo=open(photo, 'rb')
+            )
+            time.sleep(10)
     updater.start_polling()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
