@@ -1,25 +1,23 @@
 import os
-from datetime import datetime
 import time
+from datetime import datetime
 from urllib.parse import urlparse
 
 import requests
+from dotenv import load_dotenv
 from telegram.ext import Updater
 
 
-TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
-
-
-def fetch_image_spacex_launch(flight_number):
+def fetch_image_spacex_launch():
     file_path = 'images/spacex/'
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    spacex_url = f'https://api.spacexdata.com/v3/launches/{flight_number}'
+    spacex_url = 'https://api.spacexdata.com/v3/launches/97'
     response = requests.get(spacex_url)
     response.raise_for_status()
     images_urls = response.json()['links']['flickr_images']
-    for image_number, url in enumerate(images_urls, 1):
+    for image_number, url in enumerate(images_urls):
         file_name = f'spacex_{image_number}.jpg'
         snapshot = requests.get(url)
         snapshot.raise_for_status()
@@ -33,20 +31,20 @@ def get_file_extension(url):
     return file_extension
 
 
-def fetch_image_nasa(count_image):
+def fetch_image_nasa(nasa_api, count_image):
     file_path = 'images/NASA/'
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
     nasa_url = 'https://api.nasa.gov/planetary/apod'
     params = {
-        'api_key': 'sFB6SYeX9LtE6EYuY9yj7eq8ikb0QBE8IahIJOaS',
+        'api_key': nasa_api,
         'count': count_image
     }
     response = requests.get(nasa_url, params=params)
     response.raise_for_status()
     images_urls = [image_url['hdurl'] for image_url in response.json()]
-    for image_number, url in enumerate(images_urls, 1):
+    for image_number, url in enumerate(images_urls):
         file_name = f'nasa_{image_number}{get_file_extension(url)}'
         snapshot = requests.get(url)
         snapshot.raise_for_status()
@@ -54,14 +52,14 @@ def fetch_image_nasa(count_image):
             file.write(snapshot.content)
 
 
-def fetch_image_epic():
+def fetch_image_epic(nasa_api):
     file_path = 'images/EPIC/'
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
     recent_snapshots_url = 'https://api.nasa.gov/EPIC/api/natural/images'
     params = {
-        'api_key': 'sFB6SYeX9LtE6EYuY9yj7eq8ikb0QBE8IahIJOaS'
+        'api_key': nasa_api
     }
     response = requests.get(recent_snapshots_url, params=params)
     response.raise_for_status()
@@ -83,20 +81,24 @@ def fetch_image_epic():
 
 
 def main():
-    # flight_number = 97
-    # fetch_image_spacex_launch(flight_number)
-    # fetch_image_nasa(10)
-    # fetch_image_epic()
-    updater = Updater(token=TELEGRAM_TOKEN, use_context=True)
+    load_dotenv()
+    nasa_api = os.getenv('NASA_API')
+    telegram_api = os.getenv('TELEGRAM_API')
+    timeout = os.getenv('TIMEOUT')
+    chat_id = os.getenv('CHAT_ID')
+    fetch_image_spacex_launch()
+    fetch_image_nasa(nasa_api, 3)
+    fetch_image_epic(nasa_api)
+    updater = Updater(token=telegram_api, use_context=True)
     dispatcher = updater.dispatcher
     for root, dirs, files in os.walk("images"):
         for filename in files:
             photo = os.path.join(root, filename)
             dispatcher.bot.send_photo(
-                chat_id='@gudmund198',
+                chat_id=chat_id,
                 photo=open(photo, 'rb')
             )
-            time.sleep(10)
+            time.sleep(int(timeout))
     updater.start_polling()
 
 
