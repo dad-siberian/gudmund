@@ -11,10 +11,11 @@ def posting_photos_telegram_channel(telegram_api, chat_id, timeout):
     for root, dirs, files in os.walk("images"):
         for filename in files:
             photo = os.path.join(root, filename)
-            dispatcher.bot.send_photo(
-                chat_id=chat_id,
-                photo=open(photo, 'rb')
-            )
+            with open(photo, 'rb') as file:
+                dispatcher.bot.send_photo(
+                    chat_id=chat_id,
+                    photo=file
+                )
             time.sleep(int(timeout))
     updater.start_polling()
 
