@@ -12,9 +12,7 @@ def extarct_file_extension(url):
     return file_extension
 
 
-def fetch_image_nasa(nasa_api, count_image=30):
-    file_path = 'images/NASA/'
-    os.makedirs(file_path, exist_ok=True)
+def fetch_image_nasa(nasa_api, file_path, count_image=30):
     nasa_url = 'https://api.nasa.gov/planetary/apod'
     params = {
         'api_key': nasa_api,
@@ -31,9 +29,7 @@ def fetch_image_nasa(nasa_api, count_image=30):
             file.write(snapshot.content)
 
 
-def fetch_image_epic(nasa_api):
-    file_path = 'images/EPIC/'
-    os.makedirs(file_path, exist_ok=True)
+def fetch_image_epic(nasa_api, file_path):
     recent_snapshots_url = 'https://api.nasa.gov/EPIC/api/natural/images'
     params = {
         'api_key': nasa_api
@@ -60,8 +56,14 @@ def fetch_image_epic(nasa_api):
 def main():
     load_dotenv()
     nasa_api = os.getenv('NASA_API')
-    fetch_image_epic(nasa_api)
-    fetch_image_nasa(nasa_api)
+    file_paths = {
+        'nasa': 'images/NASA/',
+        'epic': 'images/EPIC/'
+    }
+    for path in file_paths.values():
+        os.makedirs(path, exist_ok=True)
+    fetch_image_nasa(nasa_api, file_paths['nasa'])
+    fetch_image_epic(nasa_api, file_paths['epic'])
 
 
 if __name__ == '__main__':
