@@ -17,7 +17,6 @@ def posting_photos_telegram_channel(telegram_api, chat_id, timeout):
                     photo=file
                 )
             time.sleep(int(timeout))
-    updater.start_polling()
 
 
 def main():
