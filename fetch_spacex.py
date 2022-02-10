@@ -19,7 +19,7 @@ def fetch_image_spacex_launch(file_path, flight_number='latest'):
 def main():
     file_path = 'images/spacex/'
     os.makedirs(file_path, exist_ok=True)
-    fetch_image_spacex_launch(file_path, 97)
+    fetch_image_spacex_launch(file_path)
 
 
 if __name__ == '__main__':

@@ -61,7 +61,7 @@ def main():
     load_dotenv()
     nasa_api = os.getenv('NASA_API')
     fetch_image_epic(nasa_api)
-    fetch_image_nasa(nasa_api, 2)
+    fetch_image_nasa(nasa_api)
 
 
 if __name__ == '__main__':
